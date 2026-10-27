@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Shyam Parikh</title>
+<meta name="description" content="Shyam Parikh: New Jersey native, Stevens '26, and lifelong Knicks and Giants fan.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800;900&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<header class="nav">
+  <a href="#top" class="brand"><span class="brand-mark">SP</span><span>Shyam Parikh</span></a>
+  <nav class="nav-links" aria-label="Sections">
+    <a href="#card">About</a>
+    <a href="#drive">Experience</a>
+    <a href="#film">Projects</a>
+    <a href="#court">Skills</a>
+    <a href="#huddle">Contact</a>
+  </nav>
+  <button class="term-btn" id="termOpen" aria-label="Open quick navigation">&gt;_ <kbd>/</kbd></button>
+</header>
+
+<main id="top">
+
+<!-- ============ HERO: the jumbotron ============ -->
+<section class="hero wrap">
+  <div class="hero-copy">
+    <p class="eyebrow">New Jersey · Knicks · Giants</p>
+    <h1 class="hero-name"><span>Shyam</span><span class="o">Parikh</span></h1>
+    <p class="hero-sub">I grew up in New Jersey cheering for the Knicks and the Giants. I studied quantitative finance at Stevens, and I like building tools that make people's work a little easier.</p>
+    <div class="hero-ctas">
+      <a class="btn btn-knicks" href="#card">Meet me</a>
+      <a class="btn btn-ghost" href="https://github.com/sparikh099" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </div>
+
+  <div class="jumbo" aria-label="Scoreboard summary">
+    <div class="jumbo-top"><span>NOW ENTERING</span><span class="jumbo-led">#26 PARIKH</span></div>
+    <dl class="jumbo-grid">
+      <div><dt>From</dt><dd>New Jersey</dd></div>
+      <div><dt>School</dt><dd>Stevens '26</dd></div>
+      <div><dt>Winters</dt><dd class="k">Knicks</dd></div>
+      <div><dt>Sundays</dt><dd class="g">Giants</dd></div>
+      <div><dt>Saturdays</dt><dd class="b">Bayern</dd></div>
+      <div><dt>Next stop</dt><dd>Chicago</dd></div>
+    </dl>
+    <p class="jumbo-crawl">Press <kbd>/</kbd> to jump to any section.</p>
+  </div>
+</section>
+
+<!-- ============ ABOUT (Knicks): a jersey in the rafters ============ -->
+<section id="card" class="band knicks">
+  <div class="wrap about">
+    <div class="rafters" aria-hidden="true">
+      <div class="banner">
+        <div class="banner-in">
+          <span class="bn-top">New York</span>
+          <span class="bn-name">Parikh</span>
+          <span class="bn-num">26</span>
+          <span class="bn-foot">Stevens · 2022–2026</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="about-copy">
+      <p class="eyebrow">Tip-off · Madison Square Garden</p>
+      <h2>Hi, I'm Shyam.</h2>
+      <p class="lead">I'm from New Jersey, and I graduated from Stevens Institute of Technology in May 2026. In March 2027, I'll be moving to Chicago to join Chicago Trading Company.</p>
+      <p>I've worked at a small fintech company in Princeton, at a research center and the student investment fund at Stevens, and at firms in Pennsylvania, New York, and Chicago. Most of that work came down to building things people use every day: dashboards, monitors, data pipelines, and practice tools.</p>
+      <p>At Stevens, I was a grader for QF 101, joined the South Asian Student Association, and played intramural basketball whenever I could.</p>
+
+      <dl class="scouting">
+        <div><dt>Style</dt><dd>Steady and team-first. I'd rather make the extra pass.</dd></div>
+        <div><dt>Off the court</dt><dd>Giants on Sundays, Bayern on Saturdays, Knicks at night, and a plain slice any time.</dd></div>
+        <div><dt>Languages</dt><dd>English, plus some Tamil and Spanish.</dd></div>
+        <div><dt>Hoops</dt><dd>Intramural basketball and any open pickup game.</dd></div>
+      </dl>
+
+      <p class="edu">B.S. Quantitative Finance, Stevens Institute of Technology <span>·</span> Highest GPA in major</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ THE DRIVE (Giants) ============ -->
+<section id="drive" class="band giants">
+  <div class="wrap">
+    <header class="sec-head">
+      <p class="eyebrow">Kickoff · MetLife Stadium</p>
+      <h2>The Drive</h2>
+      <p class="sec-sub">You're calling plays for the 2026 Giants. Pass, run, fake the handoff, or throw a screen, and move the chains through every stop in my career. You get four downs to gain 10 yards. If you don't convert, or you throw an interception, the drive starts over. To skip the game, tap any job below to read about it.</p>
+    </header>
+
+    <div class="gridiron">
+      <div class="broadcast">
+        <span class="down" id="downDist">1st &amp; 10 · OWN 20</span>
+        <span class="field-msg" id="fieldMsg" aria-live="polite"></span>
+      </div>
+      <div class="playcall" id="playcall" role="group" aria-label="Call a play">
+        <span class="lbl">Call a play</span>
+        <button data-call="pass">Pass <kbd>P</kbd></button>
+        <button data-call="pa">Play action <kbd>A</kbd></button>
+        <button data-call="run">Run <kbd>R</kbd></button>
+        <button data-call="screen">Screen <kbd>S</kbd></button>
+      </div>
+      <canvas id="gridironCanvas" aria-label="Football game. Call a play, then tap where you want to throw, or steer the runner and tap to juke. On a keyboard: P, A, R, or S calls a play, 1 through 5 throws to a receiver, the arrow keys steer, and Space jukes."></canvas>
+    </div>
+
+    <div class="drive-ctl">
+      <span class="lbl">Read about any job</span>
+      <div class="plays" id="playTabs" aria-label="Read about any job"></div>
+    </div>
+
+    <article class="play-card" id="playCard" aria-live="polite"></article>
+  </div>
+</section>
+
+<!-- ============ FILM ROOM (projects) ============ -->
+<section id="film" class="band film">
+  <div class="wrap">
+    <header class="sec-head">
+      <p class="eyebrow">Film Room</p>
+      <h2>Projects</h2>
+      <p class="sec-sub">Things I've built in class and on my own time. Each one links to the code.</p>
+    </header>
+    <div class="projects">
+      <a class="proj" href="https://github.com/sparikh099/Black-Scholes-Option-Pricing-Calculator-Web-Application" target="_blank" rel="noopener">
+        <span class="tag">Python · Streamlit</span>
+        <h4>Option Pricing Web App</h4>
+        <p>A small app that explains the Black-Scholes model and pulls in each company's stock price, profile, and latest news.</p>
+        <span class="go">View code ↗</span>
+      </a>
+      <a class="proj" href="https://github.com/sparikh099/fe_620_project" target="_blank" rel="noopener">
+        <span class="tag">Class project · team of four</span>
+        <h4>Asian Options on Brent Crude</h4>
+        <p>We priced average-price options on oil futures with Monte Carlo simulation and then studied how to hedge them.</p>
+        <span class="go">View code ↗</span>
+      </a>
+      <a class="proj" href="https://github.com/sparikh099" target="_blank" rel="noopener">
+        <span class="tag">Team of three</span>
+        <h4>IMC Prosperity 2</h4>
+        <p>A multi-round trading competition in which my team built and tested new strategies each round.</p>
+        <span class="go">GitHub ↗</span>
+      </a>
+      <a class="proj" href="https://github.com/sparikh099/HackPHS-2022---Algorithmic-Trading-Bot-Using-Machine-Learning" target="_blank" rel="noopener">
+        <span class="tag">High school hackathon</span>
+        <h4>My First Trading Bot</h4>
+        <p>This is where it started. I grouped stocks into clusters, paired them up, and backtested the strategy, with plenty of debugging along the way.</p>
+        <span class="go">View code ↗</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SKILLS + SHOOTAROUND (Knicks) ============ -->
+<section id="court" class="band court">
+  <div class="wrap">
+    <header class="sec-head">
+      <p class="eyebrow">The Garden</p>
+      <h2>Skills</h2>
+      <p class="sec-sub">Click any skill to see where I've used it.</p>
+    </header>
+
+    <div class="skillboard">
+      <div class="skill-groups" id="skillGroups"></div>
+      <div class="skill-detail" id="skillDetail" aria-live="polite"></div>
+    </div>
+
+    <div class="shootaround">
+      <div class="shoot-intro">
+        <h3>Garden Shootout</h3>
+        <p>Pick a Knick and score as much as you can in 60 seconds. Hold the button or the space bar, and let go when the bar is in the green zone. Twos are worth 2, and threes are worth 3. Hit four in a row and you're on fire, which adds a bonus point to every make. Every bucket also puts one of my skills in the spotlight.</p>
+        <p class="lbl">Choose your shooter</p>
+        <div class="roster" id="roster"></div>
+        <p class="best">Best score on this device: <b id="best">–</b></p>
+      </div>
+      <div class="shoot-stage">
+        <canvas id="hoop" width="640" height="380" aria-label="Basketball shootout game"></canvas>
+        <div class="scoreboard">
+          <div><span class="lbl">SCORE</span><b id="score">0</b></div>
+          <div><span class="lbl">TIME</span><b id="clock">60</b></div>
+          <div><span class="lbl">STREAK</span><b id="streak">0</b></div>
+        </div>
+        <p class="call" id="call" aria-live="polite">Press and hold to start the clock.</p>
+        <div class="meter"><div class="meter-zone" id="zone"></div><div class="meter-fill" id="meterFill"></div></div>
+        <button class="btn btn-knicks" id="shootBtn">Hold to shoot</button>
+        <p class="spotlight" id="spotlight" aria-live="polite">Make a shot to put one of my skills in the spotlight.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ OFF THE COURT ============ -->
+<section class="band offcourt">
+  <div class="wrap">
+    <header class="sec-head">
+      <p class="eyebrow">Postgame</p>
+      <h2>Off the Court</h2>
+    </header>
+    <div class="fans">
+      <div class="fan f-knicks"><h4>Knicks</h4><p>I've stuck with the orange and blue through the ups and downs. Nothing is louder than the Garden in the playoffs.</p></div>
+      <div class="fan f-giants"><h4>Giants</h4><p>Sundays are for Big Blue. That's where the football field above comes from.</p></div>
+      <div class="fan f-bayern"><h4>Bayern Munich</h4><p>My soccer team. Weekend mornings start with the Bundesliga.</p></div>
+      <div class="fan f-pizza"><h4>Pizza</h4><p>I was raised on the New York slice, but Chicago deep dish will get a fair shot.</p></div>
+      <div class="fan f-nature"><h4>Outdoors</h4><p>I like getting outside for trails, parks, and fresh air whenever I can.</p></div>
+      <div class="fan f-vol"><h4>Volunteering</h4><p>I like giving my time back to the community that raised me.</p></div>
+      <div class="fan f-claude"><h4>Claude</h4><p>Claude is my favorite teammate, and I honestly love it. I use it every day, from building tools on the desk at CTC to this website, which I built with Claude Code. If you want to talk about AI tools, I'm always up for it.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ HUDDLE (Giants) ============ -->
+<section id="huddle" class="band huddle">
+  <div class="wrap">
+    <header class="sec-head">
+      <p class="eyebrow">Two-minute warning</p>
+      <h2>Huddle Up</h2>
+      <p class="sec-sub">Pick a play, leave your name, email, and a note, and it comes straight to me. I'll reply to the email you enter.</p>
+    </header>
+    <form class="playsheet" id="playsheet" autocomplete="off">
+      <fieldset>
+        <legend class="lbl">Call a play</legend>
+        <div class="callplays">
+          <label><input type="radio" id="pl1" name="play" value="Talking Knicks and Giants" checked><span>Talk Knicks or Giants</span></label>
+          <label><input type="radio" id="pl2" name="play" value="A question about one of your projects"><span>Ask about a project</span></label>
+          <label><input type="radio" id="pl3" name="play" value="Grabbing a coffee"><span>Grab a coffee</span></label>
+          <label><input type="radio" id="pl4" name="play" value="Just saying hi"><span>Just say hi</span></label>
+        </div>
+      </fieldset>
+      <div class="namerow">
+        <label class="namefield" for="hName"><span class="lbl">Your name</span><input id="hName" name="name" placeholder="Your name" required></label>
+        <label class="namefield" for="hEmail"><span class="lbl">Your email</span><input id="hEmail" name="email" type="email" placeholder="you@example.com" required></label>
+      </div>
+      <label class="namefield" for="hMsg"><span class="lbl">Message</span><textarea id="hMsg" name="message" rows="4" placeholder="What's on your mind?" required></textarea></label>
+      <input type="checkbox" name="botcheck" id="hBot" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <button class="btn btn-giants wide" type="submit" id="hSend">Break the huddle</button>
+      <div class="fill" id="fillMsg" hidden></div>
+    </form>
+    <div class="links">
+      <p class="lbl">Elsewhere</p>
+      <a href="https://github.com/sparikh099" target="_blank" rel="noopener">github.com/sparikh099</a>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="foot wrap">
+  <span>© 2026 Shyam Parikh</span>
+  <span>Built in New Jersey with Claude Code. Let's go Knicks. Go Big Blue.</span>
+</footer>
+
+<!-- ============ QUICK NAVIGATION ============ -->
+<div class="term" id="term" hidden>
+  <div class="term-win" role="dialog" aria-label="Quick navigation">
+    <div class="term-bar"><span>shyam@nj:~$</span><button id="termClose" aria-label="Close">×</button></div>
+    <div class="term-out" id="termOut"></div>
+    <form id="termForm" class="term-in"><span>&gt;</span><input id="termInput" autocomplete="off" spellcheck="false" aria-label="Command"></form>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" hidden></div>
+<canvas id="confetti" aria-hidden="true"></canvas>
+
+<script src="js/main.js"></script>
+</body>
+</html>
