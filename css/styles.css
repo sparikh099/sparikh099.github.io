@@ -338,3 +338,13 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
 }
+
+/* comeback reveals: one per bucket, like the drive's job cards */
+.reveals { display: grid; gap: 16px; margin-top: 28px; }
+.k-plays button[aria-pressed="true"] { color: #1b0d00; background: var(--knicks); border-color: var(--knicks); }
+.k-plays button:disabled { opacity: .45; cursor: not-allowed; }
+.k-card { border-left-color: var(--knicks); }
+.k-card.final { border-left-color: var(--good); }
+.k-card ul { list-style: none; padding-left: 0; }
+.k-card li b { color: var(--knicks); }
+.k-card .locked { color: var(--mute); margin: 0; }

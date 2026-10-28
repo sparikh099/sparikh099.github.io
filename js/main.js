@@ -741,13 +741,17 @@
   groupsEl.addEventListener("click", (e) => { const b = e.target.closest(".skill"); if (b) showSkill(+b.dataset.i, false); });
   showSkill(0, false);
 
-  /* ---------------- Garden Shootout: 60 seconds with a Knick ---------------- */
+  /* ---------------- Comeback at the Garden: Knicks vs. 76ers ----------------
+     Fourth quarter, down 14. Every Knicks bucket opens up the next reveal (a group of skills).
+     Philly answers after each trip, but only enough to keep it close, so the eighth bucket is
+     always a go-ahead three at the horn. */
   // 2026-27 Knicks rotation (Basketball-Reference / KnicksOnline rosters)
   const KNICKS = [
     { name: "Brunson", num: "11" }, { name: "Towns", num: "32" }, { name: "Anunoby", num: "8" },
     { name: "Bridges", num: "25" }, { name: "Hart", num: "3" }, { name: "McBride", num: "2" },
     { name: "Clarkson", num: "00" }, { name: "Alvarado", num: "5" },
   ];
+  const SIXERS = ["Maxey", "Embiid", "George", "Edgecombe"];
   const SPOTS = [
     { x: 440, pts: 2, where: "the restricted area", width: 0.24 },
     { x: 345, pts: 2, where: "the elbow", width: 0.19 },
@@ -757,39 +761,82 @@
     { x: 120, pts: 3, where: "way downtown", width: 0.11 },
     { x: 62, pts: 3, where: "the logo", width: 0.09 },
   ];
-  const GAME_SECONDS = 60, FLOOR = 336;
+  const TOP_OF_KEY = SPOTS[4];
+  // each bucket opens one of these, in order (indexes into skills)
+  const REVEALS = [
+    { tab: "Python", title: "Python", items: [0] },
+    { tab: "SQL & VBA", title: "SQL and VBA", items: [1, 2] },
+    { tab: "Java & R", title: "Java and R", items: [3, 4] },
+    { tab: "Pandas & NumPy", title: "Pandas and NumPy", items: [5, 6] },
+    { tab: "Machine learning", title: "Machine learning", items: [7, 8, 9] },
+    { tab: "Web data", title: "Web data", items: [10, 11, 13] },
+    { tab: "Bloomberg & Git", title: "Bloomberg and Git", items: [14, 12] },
+    { tab: "Claude Code", title: "Claude Code", items: [15] },
+  ];
+  const START = { nyk: 95, phi: 109, clock: 180 };
+  // how far behind the Knicks should be after Philly's answer, by buckets made so far
+  const TARGET = [14, 12, 10, 8, 7, 5, 4, 2];
+  const FLOOR = 336;
   const RIM = { x: 520, y: 150, r: 24 };
   const hc = $("#hoop"), hx = hc.getContext("2d");
   const W = 640, H = 380;
-  let best = 0;
-  try { best = +localStorage.getItem("gardenBest") || 0; } catch (e) { /* storage blocked */ }
-  if (best) $("#best").textContent = best;
 
   const sg = {
-    state: "ready", time: GAME_SECONDS, score: 0, streak: 0, makes: 0, shooter: KNICKS[0], spot: SPOTS[1],
-    zone: [0.4, 0.6], charging: false, power: 0, chargeT: 0, shot: null, jump: 0, crowd: 0, embers: [], banner: 0,
+    state: "ready", nyk: START.nyk, phi: START.phi, clock: START.clock, streak: 0, makes: 0, opened: 0,
+    shooter: KNICKS[0], spot: SPOTS[1], zone: [0.4, 0.6], charging: false, power: 0, chargeT: 0,
+    shot: null, jump: 0, crowd: 0, embers: [], banner: 0, pbp: [],
   };
+  const deficit = () => sg.phi - sg.nyk;
+  const finalShot = () => sg.state === "playing" && sg.opened === REVEALS.length - 1 && deficit() >= 1 && deficit() <= 2;
 
   const rosterEl = $("#roster");
   rosterEl.innerHTML = KNICKS.map((k, i) => `<button data-i="${i}"${i ? "" : ' class="sel"'}><b>#${k.num}</b>${k.name}</button>`).join("");
   rosterEl.addEventListener("click", (e) => {
     const b = e.target.closest("button");
-    if (!b || sg.state === "playing") return;
+    if (!b || sg.shot || sg.charging) return;
     sg.shooter = KNICKS[+b.dataset.i];
     rosterEl.querySelectorAll("button").forEach((x) => x.classList.toggle("sel", x === b));
-    call(`${sg.shooter.name} is checking in. Press and hold to start the clock.`);
+    if (sg.state !== "over") call(`${sg.shooter.name} checks in. ${sg.state === "ready" ? "Press and hold to start the comeback." : "Knicks ball."}`);
   });
-  const setRosterLocked = (on) => rosterEl.querySelectorAll("button").forEach((x) => (x.disabled = on && !x.classList.contains("sel")));
+
+  /* ---- reveal tabs: locked until the bucket that opens them ---- */
+  const revealTabs = $("#revealTabs"), revealCard = $("#revealCard");
+  REVEALS.forEach((r, i) => revealTabs.insertAdjacentHTML("beforeend", `<button data-i="${i}" disabled>${i + 1}. ${r.tab}</button>`));
+  revealTabs.addEventListener("click", (e) => { const b = e.target.closest("button"); if (b && !b.disabled) showReveal(+b.dataset.i); });
+  function showReveal(i) {
+    revealTabs.querySelectorAll("button").forEach((b, j) => {
+      b.disabled = j >= sg.opened;
+      b.setAttribute("aria-pressed", j === i);
+      b.textContent = j < sg.opened ? `${j + 1}. ${REVEALS[j].tab}` : `${j + 1}. ?`;
+    });
+    if (i < 0) {
+      revealCard.classList.remove("final");
+      revealCard.innerHTML = `<p class="pbp">Q4 · 3:00 · Knicks 95, 76ers 109</p><h3>Eight buckets to go</h3><p class="locked">Each Knicks bucket opens one more of the tools I use, in order, with where I've used it. The last one wins the game.</p>`;
+      return;
+    }
+    const r = REVEALS[i], last = i === REVEALS.length - 1;
+    revealCard.classList.toggle("final", last);
+    revealCard.innerHTML = `
+      <p class="pbp">${sg.pbp[i] || ""}</p>
+      <h3>${r.title}</h3>
+      <ul>${r.items.map((k) => `<li><b>${skills[k][0]}</b>: ${skills[k][2]}</li>`).join("")}</ul>`;
+  }
 
   function call(text, hot) { const c = $("#call"); c.textContent = text; c.classList.toggle("hot", !!hot); }
   const pick = (a) => a[Math.floor(Math.random() * a.length)];
   const onFire = () => sg.streak >= 4;
+  const fmtClock = (t) => (t < 10 ? t.toFixed(1) : `${Math.floor(t / 60)}:${String(Math.floor(t % 60)).padStart(2, "0")}`);
+  const scoreLine = () => (deficit() > 0 ? `76ers by ${deficit()}` : deficit() < 0 ? `Knicks by ${-deficit()}` : "All tied");
 
   function newSpot() {
-    const pool = Math.random() < 0.12 ? SPOTS : SPOTS.slice(0, -1); // the logo shows up now and then
-    let s; do { s = pick(pool); } while (s === sg.spot);
-    sg.spot = s;
-    const width = s.width + (onFire() ? 0.03 : 0);
+    if (finalShot()) {
+      sg.spot = TOP_OF_KEY;
+    } else {
+      const pool = Math.random() < 0.12 ? SPOTS : SPOTS.slice(0, -1); // the logo shows up now and then
+      let s; do { s = pick(pool); } while (s === sg.spot);
+      sg.spot = s;
+    }
+    const width = sg.spot.width + (onFire() ? 0.03 : 0) + (finalShot() ? 0.03 : 0);
     const lo = 0.22 + Math.random() * (0.72 - width);
     sg.zone = [lo, lo + width];
     const z = $("#zone");
@@ -797,23 +844,24 @@
   }
 
   function resetGame() {
-    Object.assign(sg, { state: "ready", time: GAME_SECONDS, score: 0, streak: 0, makes: 0, shot: null, embers: [], banner: 0 });
-    setRosterLocked(false);
+    Object.assign(sg, { state: "ready", nyk: START.nyk, phi: START.phi, clock: START.clock, streak: 0, makes: 0, opened: 0, shot: null, embers: [], banner: 0, pbp: [] });
     $("#shootBtn").textContent = "Hold to shoot";
     updateBoard();
     newSpot();
-    call(`${sg.shooter.name} is checking in. Press and hold to start the clock.`);
+    showReveal(-1);
+    call(`${sg.shooter.name} brings it up, down 14. Press and hold to start the comeback.`);
   }
   function updateBoard() {
-    $("#score").textContent = sg.score;
-    $("#clock").textContent = Math.ceil(Math.max(0, sg.time));
+    $("#score").textContent = sg.nyk;
+    $("#phi").textContent = sg.phi;
+    $("#clock").textContent = fmtClock(sg.clock);
     $("#streak").textContent = sg.streak;
   }
 
   function startCharge() {
     if (sg.state === "over") { resetGame(); return; }
     if (sg.shot || sg.charging) return;
-    if (sg.state === "ready") { sg.state = "playing"; setRosterLocked(true); }
+    if (sg.state === "ready") sg.state = "playing";
     sg.charging = true; sg.chargeT = performance.now();
   }
   function release() {
@@ -828,7 +876,22 @@
     const mid = (lo + hi) / 2;
     const miss = make ? 0 : Math.max(-80, Math.min(28, (pw - mid) * 260)); // short or long
     const sx = sg.spot.x + 8, sy = FLOOR - 112;
-    sg.shot = { make, miss, sx, sy, tx: RIM.x + miss, ty: RIM.y - 4, t: 0, dur: 0.75 + (RIM.x - sx) * 0.0014, arcH: 120 + (RIM.x - sx) * 0.16, phase: "up", x: sx, y: sy, rot: 0, fire: onFire() };
+    sg.shot = { make, miss, sx, sy, tx: RIM.x + miss, ty: RIM.y - 4, t: 0, dur: 0.75 + (RIM.x - sx) * 0.0014, arcH: 120 + (RIM.x - sx) * 0.16, phase: "up", x: sx, y: sy, rot: 0, fire: onFire(), last: finalShot() };
+  }
+
+  // Philly's trip the other way: scores just enough to land on the target margin
+  function sixersAnswer(made) {
+    if (sg.opened >= REVEALS.length - 1 && deficit() >= 1 && deficit() <= 2) return made ? "Philly can't answer." : "";
+    const want = made ? TARGET[sg.opened] : Math.min(deficit() + 2, TARGET[sg.opened] + 3);
+    const pts = Math.max(0, Math.min(3, want - deficit()));
+    sg.phi += pts;
+    const p = pick(SIXERS);
+    return [
+      pick([`${p} misses the pull-up.`, `${p} is stripped by Anunoby.`, `${p}'s three rims out.`, `Shot clock violation on Philly.`]),
+      `${p} splits a pair at the line.`,
+      pick([`${p} answers at the rim.`, `${p} hits the turnaround.`, `${p} scores in the paint.`]),
+      pick([`${p} answers with a three.`, `${p} hits from deep.`]),
+    ][pts];
   }
 
   function finishShot() {
@@ -836,48 +899,47 @@
     sg.shot = null;
     if (s.make) {
       const pts = sg.spot.pts + (s.fire ? 1 : 0);
-      sg.score += pts; sg.streak++; sg.makes++;
+      sg.nyk += pts; sg.streak++; sg.makes++;
       sg.crowd = 1;
-      const si = (sg.makes - 1) % skills.length;
-      showSkill(si, true);
-      $("#spotlight").innerHTML = `<span class="lbl">Bucket</span> <b>${skills[si][0]}</b>: ${skills[si][2]}`;
-      if (sg.streak === 4) { sg.banner = 2; call(`${n} is on fire! Every make is worth a bonus point.`, true); }
-      else call(pick([
-        `${n} from ${where}... got it! +${pts}`,
-        `${n} rises up from ${where}. Bang! +${pts}`,
-        `${n} knocks it down from ${where}. +${pts}`,
-        `${n} from ${where}... nothing but net. +${pts}`,
-      ]), s.fire);
+      if (s.last) return win(pts);
+      const opens = sg.opened < REVEALS.length - 1;
+      const play = `${n} from ${where}, +${pts}.`;
+      sg.clock = Math.max(12, sg.clock - 20);
+      if (opens) { sg.pbp[sg.opened] = `Q4 · ${fmtClock(sg.clock)} · ${play} Knicks ${sg.nyk}, 76ers ${sg.phi}`; sg.opened++; showReveal(sg.opened - 1); }
+      const answer = sixersAnswer(true);
+      if (sg.streak === 4) { sg.banner = 2; call(`${n} is on fire! Bonus point on every make. ${answer} ${scoreLine()}.`, true); }
+      else call(`${pick([`${n} from ${where}... got it!`, `${n} rises up from ${where}. Bang!`, `${n} knocks it down from ${where}.`, `${n} from ${where}... nothing but net.`])} ${answer} ${scoreLine()}.`, s.fire);
     } else {
-      if (sg.streak >= 4) call(`${n} cools off. Off the rim from ${where}.`);
-      else call(s.miss < -10 ? `${n} from ${where}... short.` : s.miss > 10 ? `${n} from ${where}... off the back iron.` : `${n} from ${where}... in and out.`);
+      const coolOff = sg.streak >= 4;
       sg.streak = 0;
+      if (s.last) {
+        sg.clock = Math.max(0.8, sg.clock - 1.4);
+        call(`${n} misses, but Hart grabs the board. Timeout Knicks, ${fmtClock(sg.clock)} left.`);
+      } else {
+        sg.clock = Math.max(12, sg.clock - 14);
+        const miss = coolOff ? `${n} cools off.` : s.miss < -10 ? `${n} from ${where}... short.` : s.miss > 10 ? `${n} from ${where}... off the back iron.` : `${n} from ${where}... in and out.`;
+        call(`${miss} ${sixersAnswer(false)} ${scoreLine()}.`);
+      }
     }
+    if (finalShot() && sg.clock > 4) { sg.clock = 4; call(`Knicks down ${deficit()}, 4.0 seconds left. Timeout. ${sg.shooter.name} for the win from the top of the key.`, true); }
     updateBoard();
-    if (sg.time <= 0) endGame(); else newSpot();
+    newSpot();
   }
 
-  function endGame() {
-    sg.state = "over"; sg.charging = false;
+  function win(pts) {
+    sg.clock = 0;
+    sg.pbp[sg.opened] = `Final · ${sg.shooter.name} from ${sg.spot.where} at the horn, +${pts}. Knicks ${sg.nyk}, 76ers ${sg.phi}`;
+    sg.opened = REVEALS.length;
+    showReveal(REVEALS.length - 1);
+    sg.state = "over"; sg.charging = false; sg.banner = 3;
     $("#meterFill").style.width = "0";
-    const record = sg.score > best;
-    if (record) {
-      best = sg.score;
-      $("#best").textContent = best;
-      try { localStorage.setItem("gardenBest", String(best)); } catch (e) { /* storage blocked */ }
-      if (best > 0) confetti(["#f58426", "#006bb6", "#fff"]);
-    }
-    call(`Final: ${sg.score} points with ${sg.shooter.name}.${record && sg.score ? " New best!" : ""} Press the button to play again.`, record);
-    $("#shootBtn").textContent = "Play again";
-    setRosterLocked(false);
+    updateBoard();
+    confetti(["#f58426", "#006bb6", "#fff"]);
+    call(`${sg.shooter.name}... BANG! Knicks win ${sg.nyk}–${sg.phi}. Press the button to run it back.`, true);
+    $("#shootBtn").textContent = "Run it back";
   }
 
   function updateShootout(dt) {
-    if (sg.state === "playing") {
-      sg.time -= dt;
-      if (sg.time <= 0 && !sg.shot && !sg.charging) { sg.time = 0; endGame(); }
-      updateBoard();
-    }
     if (sg.charging) {
       const ph = ((performance.now() - sg.chargeT) / 1050) % 2;
       sg.power = ph < 1 ? ph : 2 - ph;
@@ -904,10 +966,9 @@
     }
     sg.embers.forEach((e) => { e.life -= dt; e.y -= 30 * dt; });
     sg.embers = sg.embers.filter((e) => e.life > 0);
-    sg.crowd = Math.max(0, sg.crowd - dt * 0.9);
+    sg.crowd = sg.state === "over" ? 1 : Math.max(0, sg.crowd - dt * 0.9);
     sg.banner = Math.max(0, sg.banner - dt);
   }
-
   function drawShootout(now) {
     hx.clearRect(0, 0, W, H);
     // stands: the crowd stands up on every make
@@ -950,7 +1011,11 @@
       const yy = RIM.y + k * 13 + swish * k * 2.5, sh = RIM.r * (1 - k * 0.14);
       hx.beginPath(); hx.moveTo(RIM.x - sh, yy); hx.lineTo(RIM.x + sh, yy); hx.stroke();
     }
-    drawShooter(sg.spot.x, sg.jump, !!sg.shot || sg.charging);
+    // a Sixer closes out: Embiid protects the paint, Maxey chases shooters
+    const guard = sg.spot.x > 300 ? { num: "21", name: "Embiid" } : { num: "0", name: "Maxey" };
+    const contest = sg.shot && sg.shot.t < 0.5 ? Math.sin((Math.PI * sg.shot.t) / 0.5) * 16 : 0;
+    if (sg.state !== "over") drawShooter(sg.spot.x + 46, contest, !!sg.shot || sg.charging, { ...guard, body: "#ed174c", trim: "#006bb6" });
+    drawShooter(sg.spot.x, sg.jump, !!sg.shot || sg.charging || sg.state === "over");
     sg.embers.forEach((e) => {
       hx.fillStyle = `rgba(255,${120 + Math.round(e.life * 200)},40,${e.life * 1.6})`;
       hx.beginPath(); hx.arc(e.x + (Math.random() - 0.5) * 6, e.y, 3 + e.life * 8, 0, 7); hx.fill();
@@ -966,31 +1031,32 @@
     hx.fillStyle = "rgba(255,255,255,.9)";
     hx.fillText(`${sg.spot.where.toUpperCase()} · ${sg.spot.pts} PTS`, sg.spot.x, H - 10);
     // on-fire banner
-    if (onFire() || sg.banner > 0) {
+    if (sg.state === "over" || onFire() || sg.banner > 0) {
       hx.fillStyle = "rgba(0,0,0,.6)";
       hx.beginPath(); hx.roundRect(W / 2 - 80, 60, 160, 34, 6); hx.fill();
       hx.fillStyle = "#ff8a1e";
       hx.font = "900 24px 'Big Shoulders Display', Impact, sans-serif";
-      hx.fillText("ON FIRE", W / 2, 86);
+      hx.fillText(sg.state === "over" ? "KNICKS WIN" : "ON FIRE", W / 2, 86);
     }
     hx.textAlign = "left";
   }
 
-  function drawShooter(x, j, armsUp) {
+  function drawShooter(x, j, armsUp, p) {
+    const kit = p || { ...sg.shooter, body: "#006bb6", trim: css("--knicks") };
     const top = FLOOR - 104 - j;
     hx.fillStyle = "rgba(0,0,0,.25)";
     hx.beginPath(); hx.ellipse(x, FLOOR + 4, 22, 5, 0, 0, 7); hx.fill();
     hx.strokeStyle = "#1b1b1b"; hx.lineWidth = 6; hx.lineCap = "round";
     hx.beginPath(); hx.moveTo(x - 5, top + 66); hx.lineTo(x - 7, FLOOR - j); hx.moveTo(x + 5, top + 66); hx.lineTo(x + 8, FLOOR - j); hx.stroke();
-    hx.fillStyle = "#006bb6";
+    hx.fillStyle = kit.body;
     hx.fillRect(x - 12, top + 50, 24, 18);
-    hx.fillStyle = css("--knicks"); hx.fillRect(x - 12, top + 50, 3, 18); hx.fillRect(x + 9, top + 50, 3, 18);
-    hx.fillStyle = "#006bb6";
+    hx.fillStyle = kit.trim; hx.fillRect(x - 12, top + 50, 3, 18); hx.fillRect(x + 9, top + 50, 3, 18);
+    hx.fillStyle = kit.body;
     hx.beginPath(); hx.roundRect(x - 13, top + 16, 26, 36, 5); hx.fill();
-    hx.strokeStyle = css("--knicks"); hx.lineWidth = 2; hx.stroke();
+    hx.strokeStyle = kit.trim; hx.lineWidth = 2; hx.stroke();
     hx.fillStyle = "#fff"; hx.textAlign = "center";
     hx.font = "900 17px 'Big Shoulders Display', Impact, sans-serif";
-    hx.fillText(sg.shooter.num, x, top + 42);
+    hx.fillText(kit.num, x, top + 42);
     hx.strokeStyle = "#1b1b1b"; hx.lineWidth = 5;
     hx.beginPath();
     if (armsUp) { hx.moveTo(x - 11, top + 22); hx.lineTo(x + 2, top - 4); hx.moveTo(x + 11, top + 22); hx.lineTo(x + 8, top - 6); }
@@ -999,7 +1065,7 @@
     hx.fillStyle = "#1b1b1b";
     hx.beginPath(); hx.arc(x, top + 6, 9, 0, 7); hx.fill();
     hx.font = "600 10px 'JetBrains Mono', monospace"; hx.fillStyle = "#fff";
-    hx.fillText(sg.shooter.name.toUpperCase(), x, top - 22);
+    hx.fillText(kit.name.toUpperCase(), x, p ? FLOOR + 22 : top - 22);
     hx.lineCap = "butt"; hx.textAlign = "left";
   }
   function drawBall(x, y, rot) {

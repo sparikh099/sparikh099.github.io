@@ -171,24 +171,28 @@
 
     <div class="shootaround">
       <div class="shoot-intro">
-        <h3>Garden Shootout</h3>
-        <p>Pick a Knick and score as much as you can in 60 seconds. Hold the button or the space bar, and let go when the bar is in the green zone. Twos are worth 2, and threes are worth 3. Hit four in a row and you're on fire, which adds a bonus point to every make. Every bucket also puts one of my skills in the spotlight.</p>
+        <h3>Comeback at the Garden</h3>
+        <p>Fourth quarter, Knicks down 14 to the 76ers. Hold the button or the space bar, and let go when the bar is in the green zone. Every bucket cuts into the lead and opens up one more of my skills below. Hit four in a row and you're on fire, which adds a bonus point to every make. Miss, and Philly gets a look the other way.</p>
         <p class="lbl">Choose your shooter</p>
         <div class="roster" id="roster"></div>
-        <p class="best">Best score on this device: <b id="best">–</b></p>
       </div>
       <div class="shoot-stage">
-        <canvas id="hoop" width="640" height="380" aria-label="Basketball shootout game"></canvas>
+        <canvas id="hoop" width="640" height="380" aria-label="Basketball game, Knicks against the 76ers"></canvas>
         <div class="scoreboard">
-          <div><span class="lbl">SCORE</span><b id="score">0</b></div>
-          <div><span class="lbl">TIME</span><b id="clock">60</b></div>
+          <div><span class="lbl">NYK</span><b id="score">95</b></div>
+          <div><span class="lbl">PHI</span><b id="phi">109</b></div>
+          <div><span class="lbl">4TH</span><b id="clock">3:00</b></div>
           <div><span class="lbl">STREAK</span><b id="streak">0</b></div>
         </div>
-        <p class="call" id="call" aria-live="polite">Press and hold to start the clock.</p>
+        <p class="call" id="call" aria-live="polite">Press and hold to start the comeback.</p>
         <div class="meter"><div class="meter-zone" id="zone"></div><div class="meter-fill" id="meterFill"></div></div>
         <button class="btn btn-knicks" id="shootBtn">Hold to shoot</button>
-        <p class="spotlight" id="spotlight" aria-live="polite">Make a shot to put one of my skills in the spotlight.</p>
       </div>
+    </div>
+
+    <div class="reveals">
+      <div class="plays k-plays" id="revealTabs" aria-label="Skills opened up by each bucket"></div>
+      <article class="play-card k-card" id="revealCard" aria-live="polite"></article>
     </div>
   </div>
 </section>
